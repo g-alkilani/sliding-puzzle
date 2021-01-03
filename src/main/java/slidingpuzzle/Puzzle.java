@@ -9,27 +9,49 @@ import java.util.Random;
 public class Puzzle extends JPanel {
     private static final int SIZE = 4;
 
-    volatile int xEmptyCell = -1;
-    volatile int yEmptyCell = -1;
-    volatile int[][] grid;
+    private volatile int xEmptyCell = -1;
+    private volatile int yEmptyCell = -1;
+    private volatile int[][] grid;
     private final Random random = new Random();
     private final JFrame frame;
-    private JPanel rootPanel;
+    private final JPanel rootPanel;
 
     public Puzzle() {
         prepareGrid();
         frame = new JFrame("Sliding Puzzle");
         frame.setSize(600, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        rootPanel = new JPanel(null);
     }
 
     public void display() {
-        rootPanel = new JPanel(null);
         rootPanel.add(createSquare());
         rootPanel.add(createNewGameButton());
         frame.setResizable(false);
         frame.add(rootPanel);
         frame.setVisible(true);
+    }
+
+    public void updateState(int x, int y) {
+        if (x == this.xEmptyCell && y == this.yEmptyCell) {
+            return;
+        }
+
+        if ((x == this.xEmptyCell && Math.abs(y - this.yEmptyCell) == 1) ||
+                (y == this.yEmptyCell && Math.abs(x - this.xEmptyCell) == 1)) {
+            int temp = this.grid[x][y];
+            this.grid[x][y] = -1;
+            this.grid[this.xEmptyCell][this.yEmptyCell] = temp;
+
+            this.xEmptyCell = x;
+            this.yEmptyCell = y;
+
+            if (this.isGameOver()) {
+                this.endTheGame();
+                return;
+            }
+            this.updatePuzzle();
+        }
     }
 
     private void prepareGrid() {
@@ -106,7 +128,7 @@ public class Puzzle extends JPanel {
         updatePuzzle();
     }
 
-    void updatePuzzle() {
+    private void updatePuzzle() {
         rootPanel.removeAll();
         rootPanel.add(createSquare());
         rootPanel.add(createNewGameButton());
@@ -114,7 +136,7 @@ public class Puzzle extends JPanel {
         rootPanel.repaint();
     }
 
-    void endTheGame() {
+    private void endTheGame() {
         rootPanel.removeAll();
         rootPanel.add(createSquare());
         JLabel jLabel = new JLabel("Congratulations!");
@@ -125,20 +147,21 @@ public class Puzzle extends JPanel {
         rootPanel.repaint();
     }
 
-    Component createNewGameButton() {
+    private Component createNewGameButton() {
         JButton jButton = new JButton("New game");
         jButton.setBounds(450, 450, 100, 30);
         jButton.addMouseListener(new NewGameButtonListener(this));
         return jButton;
     }
 
-    JPanel createSquare() {
+    private JPanel createSquare() {
         JPanel innerPanel = new JPanel();
         innerPanel.setLayout(new GridLayout(SIZE, SIZE));
 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Cell cell = new Cell(this, i, j);
+                Cell cell = new Cell(grid[i][j], i, j);
+                cell.addMouseListener(new CellListener(this));
                 innerPanel.add(cell);
             }
         }

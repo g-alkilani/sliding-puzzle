@@ -5,12 +5,8 @@ import java.awt.event.MouseListener;
 
 public class CellListener implements MouseListener {
     private final Puzzle puzzle;
-    private final int x;
-    private final int y;
 
-    public CellListener(Puzzle puzzle, int x, int y) {
-        this.x = x;
-        this.y = y;
+    public CellListener(Puzzle puzzle) {
         this.puzzle = puzzle;
     }
 
@@ -20,25 +16,11 @@ public class CellListener implements MouseListener {
             return;
         }
 
-        if (x == puzzle.xEmptyCell && y == puzzle.yEmptyCell) {
-            return;
-        }
+        Cell source = (Cell) e.getSource();
+        int x = source.getXCoordinate();
+        int y = source.getYCoordinate();
 
-        if ((x == puzzle.xEmptyCell && Math.abs(y - puzzle.yEmptyCell) == 1) ||
-                (y == puzzle.yEmptyCell && Math.abs(x - puzzle.xEmptyCell) == 1)) {
-            int temp = puzzle.grid[x][y];
-            puzzle.grid[x][y] = -1;
-            puzzle.grid[puzzle.xEmptyCell][puzzle.yEmptyCell] = temp;
-
-            puzzle.xEmptyCell = x;
-            puzzle.yEmptyCell = y;
-
-            if (puzzle.isGameOver()) {
-                puzzle.endTheGame();
-                return;
-            }
-            puzzle.updatePuzzle();
-        }
+        puzzle.updateState(x, y);
     }
 
     @Override

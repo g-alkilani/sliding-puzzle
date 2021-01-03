@@ -6,10 +6,21 @@ import java.awt.*;
 public class Cell extends JComponent {
     private static final int CELL_LENGTH = 50;
     private final int num;
+    private final int xCoordinate;
+    private final int yCoordinate;
 
-    public Cell(Puzzle puzzle, int i, int j) {
-        num = puzzle.grid[i][j];
-        super.addMouseListener(new CellListener(puzzle, i, j));
+    public Cell(int num, int xCoordinate, int yCoordinate) {
+        this.num = num;
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
+    }
+
+    public int getXCoordinate() {
+        return xCoordinate;
+    }
+
+    public int getYCoordinate() {
+        return yCoordinate;
     }
 
     @Override
